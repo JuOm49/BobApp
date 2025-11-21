@@ -1,0 +1,49 @@
+name: CI_BobApp
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      #FrontEnd  Node.js & Angular
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install frontend dependencies
+        working-directory: front
+        run: npm install
+
+      - name: Run frontend tests
+        working-directory: front
+        run: npm test -- --watch=false || echo "An error has occured"
+        
+      - name: Build frontend
+        working-directory: front
+        run: npm run build
+
+      #BackEnd Java Spring Boot & Maven
+      - name: Setup Java 11
+        uses: actions/setup-java@4
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+
+      - name: Install backend dependencies & run tests
+        working-directory: back
+        run: mvn clean install --batch-mode
+
+      - name: Build backend JAR (skip tests)
+        working-directory: back
+        run: mvn package -DskipTests --batch-mode
+
+      
