@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          fetch-depth: 0  # requis pour SonarCloud
 
       - name: Setup Node.js
         uses: actions/setup-node@v5
@@ -22,17 +24,9 @@ jobs:
         working-directory: front
         run: npm ci
 
-      - name: Run frontend tests
+      - name: Run frontend tests with coverage
         working-directory: front
-        run: npm test -- --watch=false
-
-      - name: Build frontend
-        working-directory: front
-        run: npm run build
-
-      - name: Run tests with coverage
-        working-directory: front
-        run: npm run test
+        run: npm run test -- --watch=false --code-coverage
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
@@ -41,7 +35,7 @@ jobs:
           path: front/coverage
 
       - name: Analyze frontend code with SonarCloud
-        uses: SonarSource/sonarcloud-github-action@v2
+        uses: SonarSource/sonarqube-scan-action@v1.2.0
         with:
           projectBaseDir: front
         env:
@@ -94,6 +88,7 @@ jobs:
             -Dsonar.organization=JuOm49 \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+
 
 
 
