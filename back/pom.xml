@@ -16,7 +16,8 @@
 	<properties>
 		<java.version>11</java.version>
         <sonar.organization>juom49</sonar.organization>
-	</properties>
+        <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+    </properties>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
