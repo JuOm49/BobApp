@@ -42,6 +42,11 @@ jobs:
             distribution: 'temurin'
             java-version: '11'
 
+        - name: Run backend tests
+          working-directory: back
+          run: mvn -B test
+
         - name: Build backend (Maven)
           working-directory: back
-          run: mvn -B clean package -DskipTests
+          run: mvn -B clean package
+
