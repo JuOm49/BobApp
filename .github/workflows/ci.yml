@@ -13,7 +13,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
         with:
-          fetch-depth: 0  # requis pour SonarCloud
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v5
@@ -33,6 +33,12 @@ jobs:
         with:
           name: frontend-coverage-report
           path: front/coverage
+
+      - name: Setup Java 17 for SonarCloud
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
       - name: Analyze frontend code with SonarCloud
         uses: SonarSource/sonarqube-scan-action@v1.2.0
@@ -85,6 +91,7 @@ jobs:
           env:
             SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \-Dsonar.projectKey=JuOm49_BobApp \-Dsonar.organization=juom49 \-Dsonar.host.url=https://sonarcloud.io \-Dsonar.login=${{ secrets.SONAR_TOKEN }}
+
 
 
 
