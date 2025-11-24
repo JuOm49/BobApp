@@ -199,6 +199,10 @@
         {
             "joke": "Que fait un geek quand il descend du métro ?",
             "response": "Il libère la RAM"
+        },
+        {
+          "joke": "La blague est PAS drôle…",
+          "response": "MAIS ÉVIDEMMENT C’EST SANS ALCOOL !"
         }
     ]
 }
