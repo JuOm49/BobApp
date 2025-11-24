@@ -52,6 +52,8 @@ jobs:
       steps:
         - name: Checkout
           uses: actions/checkout@v5
+          with:
+            fetch-depth: 0
 
         - name: Setup Java 11
           uses: actions/setup-java@v5
@@ -59,13 +61,19 @@ jobs:
             distribution: 'temurin'
             java-version: '11'
 
-        - name: Run backend tests
-          working-directory: back
-          run: mvn -B test
+        - name: Cache SonarCloud packages
+          uses: actions/cache@v4
+          with:
+            path: ~/.sonar/cache
+            key: ${{ runner.os }}-sonar
+            restore-keys: ${{ runner.os }}-sonar
 
-        - name: Build backend (Maven)
-          working-directory: back
-          run: mvn -B clean package
+        - name: Cache Maven packages
+          uses: actions/cache@v4
+          with:
+            path: ~/.m2
+            key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+            restore-keys: ${{ runner.os }}-m2
 
         - name: Run tests with coverage
           working-directory: back
@@ -77,9 +85,17 @@ jobs:
             name: backend-coverage-report
             path: back/target/site/jacoco
 
-        - name: Run SonarCloud analysis (Maven)
+        - name: Build and analyze with SonarCloud
           working-directory: back
-          run: mvn sonar:sonar -Dsonar.projectKey=ton_project_key -Dsonar.organization=JuOm49 -Dsonar.host.url=https://sonarcloud.io -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+          env:
+            SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+            -Dsonar.projectKey=JuOm49_BobApp \
+            -Dsonar.organization=JuOm49 \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+
+
 
 
 
