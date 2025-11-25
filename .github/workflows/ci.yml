@@ -42,6 +42,9 @@ jobs:
 
       - name: Check lcov.info presence
         run: ls -l front/coverage/bobapp
+
+      - name: Show lcov.info content
+        run: head -n 20 front/coverage/bobapp/lcov.info
         
       - name: Analyze frontend code with SonarCloud
         uses: SonarSource/sonarcloud-github-action@v2
@@ -95,6 +98,7 @@ jobs:
           env:
             SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \-Dsonar.projectKey=JuOm49_BobApp \-Dsonar.organization=juom49 \-Dsonar.host.url=https://sonarcloud.io \-Dsonar.login=${{ secrets.SONAR_TOKEN }}
+
 
 
 
