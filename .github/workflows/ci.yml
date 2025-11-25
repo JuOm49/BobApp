@@ -49,7 +49,7 @@ jobs:
       - name: Analyze frontend code with SonarCloud
         uses: SonarSource/sonarcloud-github-action@v2
         with:
-          projectBaseDir: front
+          projectBaseDir: .
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
@@ -97,7 +97,9 @@ jobs:
           working-directory: back
           env:
             SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \-Dsonar.projectKey=JuOm49_BobApp \-Dsonar.organization=juom49 \-Dsonar.host.url=https://sonarcloud.io \-Dsonar.login=${{ secrets.SONAR_TOKEN }}
+          run: mvn -B verify sonar:sonar -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+
+
 
 
 
