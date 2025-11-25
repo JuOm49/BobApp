@@ -2,7 +2,6 @@ package com.openclassrooms.bobapp.service;
 
 import java.security.SecureRandom;
 import java.util.List;
-import java.util.Random;
 
 import org.springframework.stereotype.Service;
 
