@@ -12,6 +12,8 @@ import com.openclassrooms.bobapp.model.Joke;
 public class JokeService {
     
     private final JsonReader jsonReader;
+    // fix from Sonar Cloud about Random usage
+    private final Random random = new Random();
 
     JokeService(JsonReader jsonReader) {
         this.jsonReader = jsonReader;
@@ -19,8 +21,7 @@ public class JokeService {
 
     public Joke getRandomJoke() {
         List<Joke> jokes = this.jsonReader.getJokes();
-        Random generator = new Random();
-        int randomIndex = generator.nextInt(jokes.size());
+        int randomIndex = random.nextInt(jokes.size());
         return jokes.get(randomIndex);
     }
 }
