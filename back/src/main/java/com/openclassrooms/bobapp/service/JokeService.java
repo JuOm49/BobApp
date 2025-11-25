@@ -1,5 +1,6 @@
 package com.openclassrooms.bobapp.service;
 
+import java.security.SecureRandom;
 import java.util.List;
 import java.util.Random;
 
@@ -13,7 +14,7 @@ public class JokeService {
     
     private final JsonReader jsonReader;
     // fix from Sonar Cloud about Random usage
-    private final Random random = new Random();
+    private final SecureRandom random = new SecureRandom();
 
     JokeService(JsonReader jsonReader) {
         this.jsonReader = jsonReader;
