@@ -39,3 +39,6 @@ build/
 .mvn
 
 .angular
+
+## ignore macOS system files
+**/.DS_Store
