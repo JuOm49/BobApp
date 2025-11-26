@@ -10,10 +10,10 @@ jobs:
 
     steps:
       - name: Checkout project
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 18
 
@@ -38,15 +38,18 @@ jobs:
           name: bobapp-front-image
           path: bobapp-front.tar
 
+      - name: Run Front container
+        run: docker run -d -p 4200:80 --name bobapp-front bobapp-front
+
   build_back:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout project
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Java 11
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '11'
@@ -67,3 +70,6 @@ jobs:
         with:
           name: bobapp-back-image
           path: bobapp-back.tar
+
+      - name: Run Back container
+        run: docker run -d -p 8081:8080 --name bobapp-back bobapp-back
