@@ -1,0 +1,25 @@
+name: Tests
+on:
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  frontend-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22.21.1'
+      - run: npm ci --prefix front
+      - run: npm run test --prefix front -- --watch=false --code-coverage
+
+  backend-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - run: mvn -B clean verify jacoco:report --file back/pom.xml
