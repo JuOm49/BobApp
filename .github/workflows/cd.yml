@@ -36,8 +36,8 @@ jobs:
 
       - name: Tag and push Front image
         run: |
-          docker tag bobapp-front ${{ secrets.DOCKER_USERNAME }}/bobapp-front:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/bobapp-front:latest
+          docker tag bobapp-front ju49om/bobapp-back:latest
+          docker push ju49om/bobapp-front:latest
 
       - name: Save Docker image
         run: docker save bobapp-front > bobapp-front.tar
@@ -74,8 +74,8 @@ jobs:
 
       - name: Tag and push Back image
         run: |
-          docker tag bobapp-back ${{ secrets.DOCKER_USERNAME }}/bobapp-back:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/bobapp-back:latest
+          docker tag bobapp-back ju49om/bobapp-back:latest
+          docker push ju49om/bobapp-back:latest
 
       - name: Save Docker image
         run: docker save bobapp-back > bobapp-back.tar
@@ -85,5 +85,6 @@ jobs:
         with:
           name: bobapp-back-image
           path: bobapp-back.tar
+
 
 
