@@ -36,6 +36,9 @@ jobs:
 
       - name: Tag and push Front image
         run: |
+          IMAGE_TAG=${{ github.sha }}
+          docker tag bobapp-front ${{ secrets.DOCKER_USERNAME }}/bobapp-front:${IMAGE_TAG}
+          docker push ${{ secrets.DOCKER_USERNAME }}/bobapp-front:${IMAGE_TAG}
           docker tag bobapp-front ${{ secrets.DOCKER_USERNAME }}/bobapp-front:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/bobapp-front:latest
 
@@ -47,9 +50,6 @@ jobs:
         with:
           name: bobapp-front-image
           path: bobapp-front.tar
-
-      - name: Run Front container
-        run: docker run -d -p 4200:80 --name bobapp-front bobapp-front
 
   build_back:
     runs-on: ubuntu-latest
@@ -77,6 +77,9 @@ jobs:
 
       - name: Tag and push Back image
         run: |
+          IMAGE_TAG=${{ github.sha }}
+          docker tag bobapp-back ${{ secrets.DOCKER_USERNAME }}/bobapp-back:${IMAGE_TAG}
+          docker push ${{ secrets.DOCKER_USERNAME }}/bobapp-back:${IMAGE_TAG}
           docker tag bobapp-back ${{ secrets.DOCKER_USERNAME }}/bobapp-back:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/bobapp-back:latest
 
@@ -88,6 +91,3 @@ jobs:
         with:
           name: bobapp-back-image
           path: bobapp-back.tar
-
-      - name: Run Back container
-        run: docker run -d -p 8081:8080 --name bobapp-back bobapp-back
