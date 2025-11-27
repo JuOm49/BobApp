@@ -36,7 +36,7 @@ jobs:
 
       - name: Tag and push Front image
         run: |
-          docker tag bobapp-front ju49om/bobapp-back:latest
+          docker tag bobapp-front ju49om/bobapp-front:latest
           docker push ju49om/bobapp-front:latest
 
       - name: Save Docker image
@@ -85,6 +85,7 @@ jobs:
         with:
           name: bobapp-back-image
           path: bobapp-back.tar
+
 
 
 
