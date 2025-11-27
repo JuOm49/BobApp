@@ -35,7 +35,12 @@ jobs:
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
       - name: Tag and push Front image
+        env:
+          IMAGE_TAG: ${{ github.sha }}
         run: |
+          echo "Using tag: $IMAGE_TAG"
+          docker tag bobapp-front ju49om/bobapp-front:$IMAGE_TAG
+          docker push ju49om/bobapp-front:$IMAGE_TAG
           docker tag bobapp-front ju49om/bobapp-front:latest
           docker push ju49om/bobapp-front:latest
 
@@ -73,7 +78,12 @@ jobs:
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
       - name: Tag and push Back image
+        env:
+          IMAGE_TAG: ${{ github.sha }}
         run: |
+          echo "Using tag: $IMAGE_TAG"
+          docker tag bobapp-back ju49om/bobapp-back:$IMAGE_TAG
+          docker push ju49om/bobapp-back:$IMAGE_TAG
           docker tag bobapp-back ju49om/bobapp-back:latest
           docker push ju49om/bobapp-back:latest
 
@@ -85,6 +95,7 @@ jobs:
         with:
           name: bobapp-back-image
           path: bobapp-back.tar
+
 
 
 
