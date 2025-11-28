@@ -41,8 +41,6 @@ jobs:
           echo "Using tag: $IMAGE_TAG"
           docker tag bobapp-front ju49om/bobapp-front:$IMAGE_TAG
           docker push ju49om/bobapp-front:$IMAGE_TAG
-          docker tag bobapp-front ju49om/bobapp-front:latest
-          docker push ju49om/bobapp-front:latest
 
       - name: Save Docker image
         run: docker save bobapp-front > bobapp-front.tar
@@ -84,8 +82,6 @@ jobs:
           echo "Using tag: $IMAGE_TAG"
           docker tag bobapp-back ju49om/bobapp-back:$IMAGE_TAG
           docker push ju49om/bobapp-back:$IMAGE_TAG
-          docker tag bobapp-back ju49om/bobapp-back:latest
-          docker push ju49om/bobapp-back:latest
 
       - name: Save Docker image
         run: docker save bobapp-back > bobapp-back.tar
@@ -95,6 +91,7 @@ jobs:
         with:
           name: bobapp-back-image
           path: bobapp-back.tar
+
 
 
 
