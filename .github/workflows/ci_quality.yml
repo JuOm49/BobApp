@@ -11,6 +11,10 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Install frontend dependencies
+        working-directory: front
+        run: npm ci
+
       - name: Build backend before SonarCloud
         working-directory: back
         run: mvn -B clean compile
