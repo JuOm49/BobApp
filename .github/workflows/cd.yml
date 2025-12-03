@@ -7,9 +7,15 @@ on:
     branches: [ "main", "develop" ]
 
 jobs:
-  build_front:
+  login-docker:
     runs-on: ubuntu-latest
+    steps:
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
+  build_front:
+    needs: login-docker
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout project
         uses: actions/checkout@v5
@@ -31,27 +37,15 @@ jobs:
         working-directory: ./front
         run: docker build -t bobapp-front .
 
-      - name: Login to Docker Hub
-        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-
       - name: Tag and push Front image
         env:
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          echo "Using tag: $IMAGE_TAG"
           docker tag bobapp-front ju49om/bobapp-front:$IMAGE_TAG
           docker push ju49om/bobapp-front:$IMAGE_TAG
 
-      - name: Save Docker image
-        run: docker save bobapp-front > bobapp-front.tar
-
-      - name: Upload Front Docker artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: bobapp-front-image
-          path: bobapp-front.tar
-
   build_back:
+    needs: login-docker 
     runs-on: ubuntu-latest
 
     steps:
@@ -72,28 +66,10 @@ jobs:
         working-directory: ./back
         run: docker build -t bobapp-back .
 
-      - name: Login to Docker Hub
-        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-
       - name: Tag and push Back image
         env:
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          echo "Using tag: $IMAGE_TAG"
           docker tag bobapp-back ju49om/bobapp-back:$IMAGE_TAG
           docker push ju49om/bobapp-back:$IMAGE_TAG
-
-      - name: Save Docker image
-        run: docker save bobapp-back > bobapp-back.tar
-
-      - name: Upload Back Docker artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: bobapp-back-image
-          path: bobapp-back.tar
-
-
-
-
-
-
+          
