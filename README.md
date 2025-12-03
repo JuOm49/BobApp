@@ -1,4 +1,4 @@
-# BobApp CI/CD
+# BobApp
 
 Clone project:
 
