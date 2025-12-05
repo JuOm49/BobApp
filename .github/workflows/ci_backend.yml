@@ -56,17 +56,6 @@ jobs:
         working-directory: back
         run: mvn -B clean verify jacoco:report
         
-      - name: Debug coverage après tests
-        working-directory: back
-        run: |
-          echo "=== Vérification jacoco.xml après tests ==="
-          find . -name "jacoco.xml" -exec ls -la {} \;
-          if [ -f target/site/jacoco/jacoco.xml ]; then
-            echo "taille: $(wc -c < target/site/jacoco/jacoco.xml) bytes"
-            echo "Extrait du contenu:"
-            head -5 target/site/jacoco/jacoco.xml
-          fi
-        
       - name: Upload backend coverage
         uses: actions/upload-artifact@v4
         with:
@@ -103,12 +92,16 @@ jobs:
         with:
           name: backend-coverage
           path: back/target/site/jacoco
-        
-      - name: 🔍 Debug coverage avant SonarCloud
+
+      - name: 🔍 Debug structure complète avant SonarCloud
         working-directory: back
         run: |
           echo "=== Vérification target/classes ==="
           ls -la target/classes/ || echo "❌ target/classes n'existe pas"
+          echo "=== Contenu de target/classes ==="
+          find target/classes -name "*.class" | head -10 || echo "❌ Pas de fichiers .class"
+          echo "=== Structure complète ==="
+          find . -name "*.java" | head -10
           echo "=== Vérification jacoco.xml ==="
           ls -la target/site/jacoco/jacoco.xml || echo "❌ jacoco.xml n'existe pas"
       
