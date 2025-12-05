@@ -74,9 +74,6 @@ jobs:
         with:
           path: front/node_modules
           key: ${{ runner.os }}-frontend-node-modules-${{ hashFiles('front/package-lock.json') }}
-      - name: Build backend before SonarCloud
-        working-directory: back
-        run: mvn -B clean compile
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v2
         with:
