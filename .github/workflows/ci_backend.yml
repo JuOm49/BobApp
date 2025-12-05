@@ -7,7 +7,7 @@ on:
     branches: [ "main", "develop" ]
 
 jobs:
-  setup:
+  build-test-analyze:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -26,75 +26,27 @@ jobs:
         with:
           path: ~/.m2
           key: ${{ runner.os }}-maven-${{ hashFiles('back/pom.xml') }}
-          
-      - name: Install backend dependencies
-        working-directory: back
-        run: mvn -B dependency:resolve
-  
-  tests:
-    needs: setup
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-          
-      - name: Setup Java
-        uses: actions/setup-java@v5
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-          
-      - name: Download Maven dependencies from cache
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-maven-${{ hashFiles('back/pom.xml') }}
-          
-      - name: Run backend tests
-        working-directory: back
-        run: mvn -B clean verify jacoco:report
-        
-      - name: Upload backend coverage
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-coverage
-          path: back/target/site/jacoco
 
-  sonarcloud:
-    needs: tests
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-      
-      - name: Setup Java
-        uses: actions/setup-java@v5
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-      
-      - name: Download Maven dependencies from cache
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-maven-${{ hashFiles('back/pom.xml') }}
-
-      - name: Compile and run tests with coverage
-        working-directory: back
-        run: mvn -B clean compile test jacoco:report
-
-      - name: SonarCloud Analysis with Maven Plugin
+      - name: 🧪 Run tests and generate coverage + SonarCloud analysis
         working-directory: back
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_BACK_TOKEN }}
         run: |
+          echo "🔄 Running tests with coverage..."
+          mvn -B clean verify jacoco:report
+          echo "📊 Running SonarCloud analysis..."
           mvn sonar:sonar \
             -Dsonar.projectKey=JuOm49_BobApp_backend \
             -Dsonar.organization=juom49 \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.token=${{ secrets.SONAR_BACK_TOKEN }}
+
+      - name: 🔍 Debug final coverage files
+        working-directory: back
+        run: |
+          echo "=== Fichiers de couverture finaux ==="
+          find . -name "jacoco.xml" -exec ls -la {} \;
+          if [ -f target/site/jacoco/jacoco.xml ]; then
+            echo "✅ jacoco.xml trouvé, taille: $(wc -c < target/site/jacoco/jacoco.xml) bytes"
+          fi
