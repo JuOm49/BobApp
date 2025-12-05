@@ -6,20 +6,39 @@ on:
     branches: [ "main", "develop" ]
 
 jobs:
-  frontend-tests:
+  setup:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-      - uses: actions/checkout@v5
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
-
-      - name: Setup Node.js    
-      - uses: actions/setup-node@v5
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
         with:
           node-version: '22.21.1'
-      - run: npm ci --prefix front
-      - run: npm run test --prefix front -- --watch=false --code-coverage
+      - name: Install frontend dependencies
+        run: npm ci --prefix front
+  
+  tests:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '22.21.1'
+      - name: Download frontend dependencies from cache
+        uses: actions/cache@v3
+        with:
+          path: front/node_modules
+          key: ${{ runner.os }}-frontend-node-modules-${{ hashFiles('front/package-lock.json') }}
+      - name: Run frontend tests
+        run: npm run test --prefix front -- --watch=false --code-coverage
       - name: Upload frontend coverage
         uses: actions/upload-artifact@v4
         with:
@@ -27,22 +46,27 @@ jobs:
           path: front/coverage
 
   sonarcloud:
+    needs: tests
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-
-      - name: Install frontend dependencies
-        working-directory: front
-        run: npm ci
-
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '22.21.1'
+      - name: Download frontend dependencies from cache
+        uses: actions/cache@v3
+        with:
+          path: front/node_modules
+          key: ${{ runner.os }}-frontend-node-modules-${{ hashFiles('front/package-lock.json') }}
       - name: Build backend before SonarCloud
         working-directory: back
         run: mvn -B clean compile
-
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v2
         with:
-          projectBaseDir: .
+          projectBaseDir: front
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
