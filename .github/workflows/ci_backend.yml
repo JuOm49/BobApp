@@ -86,30 +86,10 @@ jobs:
         working-directory: back
         run: mvn -B clean compile test jacoco:report
 
-      - name: 🔍 Debug COMPLET des fichiers JaCoCo
-        working-directory: back
-        run: |
-          echo "=== PWD et structure ==="
-          pwd
-          ls -la
-          echo "=== Recherche TOUS les fichiers XML ==="
-          find . -name "*.xml" -type f | head -20
-          echo "=== Dossier target complet ==="
-          find target -type f | head -20
-          echo "=== Spécifiquement jacoco.xml ==="
-          find . -name "jacoco.xml" -type f -exec ls -la {} \;
-          echo "=== Si jacoco.xml existe ==="
-          if [ -f target/site/jacoco/jacoco.xml ]; then
-          echo "✅ TROUVÉ ! Taille: $(wc -c < target/site/jacoco/jacoco.xml) bytes"
-          echo "Contenu (20 premières lignes):"
-          head -20 target/site/jacoco/jacoco.xml
-          else
-            echo "❌ target/site/jacoco/jacoco.xml N'EXISTE PAS"
-          fi
-
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v2
         with:
           projectBaseDir: back
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_BACK_TOKEN }}
+          SONAR_HOST_URL: https://sonarcloud.io
