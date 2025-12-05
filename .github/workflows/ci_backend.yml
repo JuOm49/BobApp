@@ -7,27 +7,34 @@ on:
     branches: [ "main", "develop" ]
 
 jobs:
-  backend-coverage:
+  build-test-analyze:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - name: Checkout
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
-      
-      - name: Setup Java
+          
+      - name: Setup Java 11
         uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
-          java-version: '17'
-      
+          java-version: '11'
+          
+      - name: Cache Maven dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('back/pom.xml') }}
 
-      - name: Tests + SonarCloud
+      - name: Tests + SonarCloud Analysis
         working-directory: back
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_BACK_TOKEN }}
         run: |
           mvn clean verify jacoco:report sonar:sonar \
             -Dsonar.projectKey=JuOm49_BobApp_backend \
             -Dsonar.organization=juom49 \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.token=${{ secrets.SONAR_BACK_TOKEN }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
