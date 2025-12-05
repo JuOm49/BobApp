@@ -1,5 +1,6 @@
 name: ci_backend
 on:
+  workflow_dispatch:
   push:
     branches: [ "main", "develop" ]
   pull_request:
@@ -86,10 +87,14 @@ jobs:
         working-directory: back
         run: mvn -B clean compile test jacoco:report
 
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@v2
-        with:
-          projectBaseDir: back
+      - name: SonarCloud Analysis with Maven Plugin
+        working-directory: back
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_BACK_TOKEN }}
-          SONAR_HOST_URL: https://sonarcloud.io
+        run: |
+          mvn sonar:sonar \
+            -Dsonar.projectKey=JuOm49_BobApp_backend \
+            -Dsonar.organization=juom49 \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.token=${{ secrets.SONAR_BACK_TOKEN }}
