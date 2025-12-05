@@ -1,4 +1,4 @@
-name: Quality
+name: ci_frontend
 on:
   push:
     branches: [ "main", "develop" ]
@@ -6,6 +6,26 @@ on:
     branches: [ "main", "develop" ]
 
 jobs:
+  frontend-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js    
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22.21.1'
+      - run: npm ci --prefix front
+      - run: npm run test --prefix front -- --watch=false --code-coverage
+      - name: Upload frontend coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage
+          path: front/coverage
+
   sonarcloud:
     runs-on: ubuntu-latest
     steps:
