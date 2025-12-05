@@ -92,9 +92,6 @@ jobs:
         uses: SonarSource/sonarcloud-github-action@v2
         with:
           projectBaseDir: back
-          args: >
-            -Dsonar.branch.name=main
-            -Dsonar.newCode.referenceBranch=main
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_BACK_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
