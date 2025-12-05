@@ -1,4 +1,4 @@
-name: Tests
+name: ci_backend
 on:
   push:
     branches: [ "main", "develop" ]
@@ -6,33 +6,95 @@ on:
     branches: [ "main", "develop" ]
 
 jobs:
-  frontend-tests:
+  setup:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
+      - name: Checkout
+        uses: actions/checkout@v5
         with:
-          node-version: '22.21.1'
-      - run: npm ci --prefix front
-      - run: npm run test --prefix front -- --watch=false --code-coverage
-      - name: Upload frontend coverage
-        uses: actions/upload-artifact@v4
-        with:
-          name: frontend-coverage
-          path: front/coverage
-
-  backend-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-java@v5
+          fetch-depth: 0
+          
+      - name: Setup Java
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '17'
-      - run: mvn -B clean verify jacoco:report --file back/pom.xml
-
+          
+      - name: Cache Maven dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('back/pom.xml') }}
+          
+      - name: Install backend dependencies
+        working-directory: back
+        run: mvn -B dependency:resolve
+  
+  tests:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          
+      - name: Download Maven dependencies from cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('back/pom.xml') }}
+          
+      - name: Run backend tests
+        working-directory: back
+        run: mvn -B clean verify jacoco:report
+        
       - name: Upload backend coverage
         uses: actions/upload-artifact@v4
         with:
           name: backend-coverage
           path: back/target/site/jacoco
+
+  sonarcloud:
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          
+      - name: Download Maven dependencies from cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('back/pom.xml') }}
+
+      - name: Download backend coverage
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-coverage
+          path: back/target/site/jacoco
+          
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v2
+        with:
+          projectBaseDir: back
+          args: >
+            -Dsonar.branch.name=main
+            -Dsonar.newCode.referenceBranch=main
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_BACK_TOKEN }}
+          SONAR_HOST_URL: https://sonarcloud.io
