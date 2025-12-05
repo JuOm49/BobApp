@@ -86,7 +86,7 @@ jobs:
         with:
           projectBaseDir: front
           args: >
-            -Dsonar.projectSettings=sonar-project-front.properties
+            -Dsonar.scanner.propertiesFile=sonar-project-front.properties
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
