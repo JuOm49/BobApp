@@ -38,7 +38,8 @@ jobs:
           path: front/node_modules
           key: ${{ runner.os }}-frontend-node-modules-${{ hashFiles('front/package-lock.json') }}
       - name: Run frontend tests
-        run: npm run test --prefix front -- --watch=false --code-coverage
+        working-directory: front
+        run: npx ng test --watch=false --code-coverage
       - name: Upload frontend coverage
         uses: actions/upload-artifact@v4
         with:
