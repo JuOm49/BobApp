@@ -83,27 +83,15 @@ jobs:
           path: ~/.m2
           key: ${{ runner.os }}-maven-${{ hashFiles('back/pom.xml') }}
 
-      - name: Compile backend code
-        working-directory: back
-        run: mvn -B compile test-compile
-
       - name: Download backend coverage
         uses: actions/download-artifact@v4
         with:
           name: backend-coverage
           path: back/target/site/jacoco
 
-      - name: 🔍 Debug structure complète avant SonarCloud
+      - name: Compile backend code
         working-directory: back
-        run: |
-          echo "=== Vérification target/classes ==="
-          ls -la target/classes/ || echo "❌ target/classes n'existe pas"
-          echo "=== Contenu de target/classes ==="
-          find target/classes -name "*.class" | head -10 || echo "❌ Pas de fichiers .class"
-          echo "=== Structure complète ==="
-          find . -name "*.java" | head -10
-          echo "=== Vérification jacoco.xml ==="
-          ls -la target/site/jacoco/jacoco.xml || echo "❌ jacoco.xml n'existe pas"
+        run: mvn -B compile test-compile
       
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v2
