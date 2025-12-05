@@ -7,7 +7,7 @@ on:
     branches: [ "main", "develop" ]
 
 jobs:
-  build-test-analyze:
+  setup:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -15,7 +15,7 @@ jobs:
         with:
           fetch-depth: 0
           
-      - name: Setup Java 17
+      - name: Setup Java
         uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
@@ -26,15 +26,93 @@ jobs:
         with:
           path: ~/.m2
           key: ${{ runner.os }}-maven-${{ hashFiles('back/pom.xml') }}
-
-      - name: Tests + SonarCloud Analysis
+          
+      - name: Install backend dependencies
         working-directory: back
+        run: mvn -B dependency:resolve
+
+  tests:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          
+      - name: Download Maven dependencies from cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('back/pom.xml') }}
+          
+      - name: Run backend tests
+        working-directory: back
+        run: mvn -B clean verify jacoco:report
+        
+      - name: Debug coverage après tests
+        working-directory: back
+        run: |
+          echo "=== Vérification jacoco.xml après tests ==="
+          find . -name "jacoco.xml" -exec ls -la {} \;
+          if [ -f target/site/jacoco/jacoco.xml ]; then
+            echo "taille: $(wc -c < target/site/jacoco/jacoco.xml) bytes"
+            echo "Extrait du contenu:"
+            head -5 target/site/jacoco/jacoco.xml
+          fi
+        
+      - name: Upload backend coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-coverage
+          path: back/target/site/jacoco
+
+  sonarcloud:
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      
+      - name: Download Maven dependencies from cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('back/pom.xml') }}
+
+      - name: Download backend coverage
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-coverage
+          path: back/target/site/jacoco
+          
+      - name: Debug coverage avant SonarCloud
+        working-directory: back
+        run: |
+          echo "=== Vérification jacoco.xml avant SonarCloud ==="
+          find . -name "jacoco.xml" -exec ls -la {} \;
+          if [ -f target/site/jacoco/jacoco.xml ]; then
+            echo "taille: $(wc -c < target/site/jacoco/jacoco.xml) bytes"
+          fi
+        
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v2
+        with:
+          projectBaseDir: back
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_BACK_TOKEN }}
-        run: |
-          mvn clean verify jacoco:report sonar:sonar \
-            -Dsonar.projectKey=JuOm49_BobApp_backend \
-            -Dsonar.organization=juom49 \
-            -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.token=${{ secrets.SONAR_BACK_TOKEN }}
