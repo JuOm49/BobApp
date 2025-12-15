@@ -20,6 +20,12 @@ jobs:
         with:
           node-version: '22.21.1'
 
+      - name: Download frontend dependencies from cache
+        uses: actions/cache@v3
+        with:
+          path: front/node_modules
+          key: ${{ runner.os }}-frontend-node-modules-${{ hashFiles('front/package-lock.json') }}
+
       - name: Install frontend dependencies
         working-directory: front
         run: npm ci
@@ -27,16 +33,12 @@ jobs:
       - name: Run frontend tests with coverage
         working-directory: front
         run: npm run test -- --watch=false --code-coverage
-
-      - name: List coverage files (debug)
-        working-directory: front
-        run: ls -R coverage/
-
-      - name: Upload frontend coverage report
+        
+      - name: Upload frontend coverage
         uses: actions/upload-artifact@v4
         with:
           name: frontend-coverage
-          path: front/coverage/lcov.info
+          path: front/coverage
 
   backend-tests:
     name: Backend – Tests & Coverage
@@ -97,4 +99,5 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
+
 
