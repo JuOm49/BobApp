@@ -20,7 +20,7 @@ jobs:
         with:
           node-version: '22.21.1'
 
-      - name: Download frontend dependencies from cache
+      - name: Cache frontend dependencies
         uses: actions/cache@v3
         with:
           path: front/node_modules
@@ -33,7 +33,7 @@ jobs:
       - name: Run frontend tests with coverage
         working-directory: front
         run: npm run test -- --watch=false --code-coverage
-        
+
       - name: Upload frontend coverage
         uses: actions/upload-artifact@v4
         with:
@@ -64,17 +64,29 @@ jobs:
         working-directory: back
         run: mvn -B clean verify jacoco:report
 
-      - name: Upload backend artifacts
+      - name: Upload backend compiled classes
         uses: actions/upload-artifact@v4
         with:
-          name: backend-artifacts
-          path: back/target/site/jacoco
+          name: backend-classes
+          path: back/target/classes
+
+      - name: Upload backend test classes
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-classes
+          path: back/target/test-classes
+
+      - name: Upload backend jacoco report
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-jacoco-report
+          path: back/target/site/jacoco/jacoco.xml
 
   sonarcloud-analysis:
     name: SonarCloud – Quality Analysis
     runs-on: ubuntu-latest
     needs: [frontend-tests, backend-tests]
-    
+
     if: ${{ needs.frontend-tests.result == 'success' && needs.backend-tests.result == 'success' }}
 
     steps:
@@ -82,11 +94,23 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Download backend artifacts
+      - name: Download backend compiled classes
         uses: actions/download-artifact@v4
         with:
-          name: backend-artifacts
-          path: back/target/site/jacoco
+          name: backend-classes
+          path: back/target/classes
+
+      - name: Download backend test classes
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-test-classes
+          path: back/target/test-classes
+
+      - name: Download backend jacoco report
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-jacoco-report
+          path: back/target/site/jacoco/jacoco.xml
 
       - name: Download frontend coverage report
         uses: actions/download-artifact@v4
@@ -96,9 +120,17 @@ jobs:
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@v2
+        with:
+          projectBaseDir: .
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
+          SONAR_SCANNER_OPTS: >
+            -Dsonar.java.binaries=back/target/classes
+            -Dsonar.java.test.binaries=back/target/test-classes
+            -Dsonar.coverage.jacoco.xmlReportPaths=back/target/site/jacoco/jacoco.xml
+            -Dsonar.javascript.lcov.reportPaths=front/coverage/lcov.info
+
 
 
 
