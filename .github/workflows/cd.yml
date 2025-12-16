@@ -10,6 +10,7 @@ jobs:
   build_front:
     name: Build Front (validation)
     runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success'
 
     steps:
       - uses: actions/checkout@v5
@@ -30,6 +31,7 @@ jobs:
   build_back:
     name: Build Back (validation)
     runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success'
 
     steps:
       - uses: actions/checkout@v5
@@ -49,7 +51,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: [ build_front, build_back ]
 
-    if: ${{ success() && github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' }}
+    if: >
+      github.event.workflow_run.conclusion == 'success' && 
+      github.event.workflow_run.event == 'push'
 
     steps:
       - uses: actions/checkout@v5
@@ -72,4 +76,5 @@ jobs:
         run: |
           docker build -t ju49om/bobapp-back:$IMAGE_TAG .
           docker push ju49om/bobapp-back:$IMAGE_TAG
+
 
