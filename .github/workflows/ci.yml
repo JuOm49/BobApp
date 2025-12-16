@@ -7,6 +7,10 @@ on:
   pull_request:
     branches: [ main, develop ]
 
+concurrency:
+  group: CI_BobApp
+  cancel-in-progress: true
+
 jobs:
   frontend-tests:
     name: Frontend – Tests & Coverage
@@ -130,6 +134,7 @@ jobs:
             -Dsonar.java.test.binaries=back/target/test-classes
             -Dsonar.coverage.jacoco.xmlReportPaths=back/target/site/jacoco/jacoco.xml
             -Dsonar.javascript.lcov.reportPaths=front/coverage/lcov.info
+
 
 
 
