@@ -1,5 +1,5 @@
 name: CI_BobApp
-run-name: ${{ github.actor }} has run CI (GitHub Actions)
+run-name: ${{ github.actor }} has run GitHub Actions.
 
 on:
   push:
@@ -130,6 +130,7 @@ jobs:
             -Dsonar.java.test.binaries=back/target/test-classes
             -Dsonar.coverage.jacoco.xmlReportPaths=back/target/site/jacoco/jacoco.xml
             -Dsonar.javascript.lcov.reportPaths=front/coverage/lcov.info
+
 
 
 
