@@ -2,6 +2,7 @@ name: ci_frontend
 on:
   workflow_dispatch:
 
+#jobs
 jobs:
   setup:
     runs-on: ubuntu-latest
