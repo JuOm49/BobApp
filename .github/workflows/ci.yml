@@ -24,7 +24,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v5
         with:
-          node-version: '22.21.1'
+          node-version: '9999'
 
       - name: Cache frontend dependencies
         uses: actions/cache@v3
@@ -138,6 +138,7 @@ jobs:
             -Dsonar.java.test.binaries=back/target/test-classes
             -Dsonar.coverage.jacoco.xmlReportPaths=back/target/site/jacoco/jacoco.xml
             -Dsonar.javascript.lcov.reportPaths=front/coverage/lcov.info
+
 
 
 
