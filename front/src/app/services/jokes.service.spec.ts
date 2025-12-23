@@ -3,7 +3,6 @@ import { TestBed } from '@angular/core/testing';
 import { JokesService } from './jokes.service';
 import {HttpClientTestingModule} from "@angular/common/http/testing";
 
-//test for JokesService
 describe('JokesService', () => {
   let service: JokesService;
 
